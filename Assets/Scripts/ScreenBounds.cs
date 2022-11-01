@@ -1,18 +1,13 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using VolumeBox.Toolbox;
 
-public class ScreenBounds : MonoBehaviour
+public static class ScreenBounds
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    public static Vector2 UpperPointWorld => Camera.main.ViewportToWorldPoint(Vector2.up);
+    public static Vector2 BottomPointWorld => Camera.main.ViewportToWorldPoint(Vector2.down);
+    public static Vector2 LeftPointWorld => Camera.main.ViewportToWorldPoint(Vector2.left);
+    public static Vector2 RightPointWorld => Camera.main.ViewportToWorldPoint(Vector2.right);
 }

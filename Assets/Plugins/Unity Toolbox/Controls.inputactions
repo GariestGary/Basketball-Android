@@ -6,9 +6,18 @@
             "id": "fd65ad10-3bf4-4586-b5f9-41f607bc8677",
             "actions": [
                 {
-                    "name": "Jump",
+                    "name": "Position",
+                    "type": "Value",
+                    "id": "cbfb257f-5aef-4148-a15c-430043b36770",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Touch",
                     "type": "Button",
-                    "id": "4146404d-24dd-4304-b11b-245baa4fd498",
+                    "id": "846ad623-3c7e-4fa0-a5de-19071c908c3d",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -18,34 +27,45 @@
             "bindings": [
                 {
                     "name": "",
-                    "id": "40260b24-59a5-41e6-b88d-cf69197154bc",
+                    "id": "e528c9a9-3f29-40a6-8d8a-cfe9f6e1922c",
+                    "path": "<Touchscreen>/position",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Touchscreen",
+                    "action": "Position",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "1e48490a-ad7e-4953-a928-1fb80dd60f87",
+                    "path": "<Mouse>/position",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Mouse & Keyboard",
+                    "action": "Position",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "e1224090-d471-4606-870f-e53c589e6f3f",
                     "path": "<Touchscreen>/Press",
                     "interactions": "",
                     "processors": "",
                     "groups": "Touchscreen",
-                    "action": "Jump",
+                    "action": "Touch",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
-                    "id": "2e3d88f1-d5c0-46d4-902e-5132ffda27ac",
+                    "id": "6d966cf1-bcea-423a-b42f-12a9e70a273f",
                     "path": "<Mouse>/leftButton",
                     "interactions": "",
                     "processors": "",
                     "groups": "Mouse & Keyboard",
-                    "action": "Jump",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "556fc4b2-2cae-439b-8234-3f0ae2100ecb",
-                    "path": "<Gamepad>/buttonSouth",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Gamepad",
-                    "action": "Jump",
+                    "action": "Touch",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
