@@ -1,9 +1,11 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using VolumeBox.Toolbox;
+using Random = UnityEngine.Random;
 
 public class BallThrower : MonoCached
 {
@@ -20,13 +22,14 @@ public class BallThrower : MonoCached
 
     private Rigidbody2D ballRB;
     private Vector2 startPosition;
+    private Vector2 throwDirection;
+    private float throwForce;
     private bool startPosWrited;
     private bool touched;
     private bool readyToThrow;
     private bool readyToThrowNotified;
+    private bool throwed = true;
 
-    private Vector2 throwDirection;
-    private float throwForce;
 
     public override void Rise()
     {
@@ -65,33 +68,37 @@ public class BallThrower : MonoCached
         
         Vector2 pos = ctx.ReadValue<Vector2>();
 
-        if (touched && !startPosWrited)
+        if (ctx.performed)
         {
-            startPosition = pos;
-            startPosWrited = true;
-        }
-
-        float distFromStartPoint = Vector2.Distance(pos, startPosition);
-
-        if (distFromStartPoint > deadZoneRadius)
-        {
-            if (!readyToThrowNotified)
+            if (touched && !startPosWrited)
             {
-                ResetPosition();
-                msg.Send(Message.READY_TO_THROW);
-                readyToThrowNotified = true;
+                startPosition = pos;
+                startPosWrited = true;
             }
-                
-            readyToThrow = true;
-            float t = Mathf.Clamp01(distFromStartPoint / maxTouchDistance);
-            throwForce = Mathf.Lerp(minForce, maxForce, t);
-            throwDirection = (pos - startPosition).normalized;
-            drawer.DrawTrajectory(ball.transform.position, throwDirection * throwForce);
-        }
-        else
-        {
-            readyToThrow = false;
-            drawer.ClearTrajectory();
+
+            float distFromStartPoint = Vector2.Distance(pos, startPosition);
+
+            if (distFromStartPoint > deadZoneRadius)
+            {
+                if (!readyToThrowNotified)
+                {
+                    ResetPosition();
+                    throwed = false;
+                    msg.Send(Message.READY_TO_THROW);
+                    readyToThrowNotified = true;
+                }
+                    
+                readyToThrow = true;
+                float t = Mathf.Clamp01(distFromStartPoint / maxTouchDistance);
+                throwForce = Mathf.Lerp(minForce, maxForce, t);
+                throwDirection = (pos - startPosition).normalized;
+                drawer.DrawTrajectory(ball.transform.position, throwDirection * throwForce);
+            }
+            else
+            {
+                readyToThrow = false;
+                drawer.ClearTrajectory();
+            }
         }
     }
 
@@ -99,17 +106,22 @@ public class BallThrower : MonoCached
     {
         ballRB.bodyType = RigidbodyType2D.Dynamic;
         ball.velocity = throwDirection * throwForce;
+        throwed = true;
     }
 
     public void ResetPosition()
     {
+        if(!throwed) return;
+        
         ballRB.velocity = Vector2.zero;
         ballRB.bodyType = RigidbodyType2D.Static;
         Vector2 pos;
-        float x = ballStartArea.bounds.max.x;
-        float y = ballStartArea.bounds.max.y;
-        pos.x = Random.Range(-x, x);
-        pos.y = Random.Range(-y, y);
+        Vector2 max = ballStartArea.bounds.max;
+        Vector2 min = ballStartArea.bounds.min;
+        pos.x = Random.Range(min.x, max.x);
+        pos.y = Random.Range(min.y, max.y);
         ball.transform.position = pos;
+
+        throwed = false;
     }
 }
