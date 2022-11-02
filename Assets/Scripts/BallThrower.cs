@@ -13,7 +13,12 @@ public class BallThrower : MonoCached
     [SerializeField] private float maxForce;
     //max distance between point where touch starts and end point
     [SerializeField] private float maxTouchDistance;
+    [SerializeField] private TrajectoryDrawer drawer;
+    [SerializeField] private BoxCollider2D ballStartArea;
 
+    [Inject] private Messager msg;
+
+    private Rigidbody2D ballRB;
     private Vector2 startPosition;
     private bool startPosWrited;
     private bool touched;
@@ -22,7 +27,12 @@ public class BallThrower : MonoCached
 
     private Vector2 throwDirection;
     private float throwForce;
-    private Vector2 prevPos;
+
+    public override void Rise()
+    {
+        ballRB = ball.GetComponent<Rigidbody2D>();
+        ResetPosition();
+    }
 
     public void OnTouch(InputAction.CallbackContext ctx)
     {
@@ -38,11 +48,13 @@ public class BallThrower : MonoCached
         {
             touched = false;
             startPosWrited = false;
+            readyToThrowNotified = false;
             
             if (readyToThrow)
             {
                 Throw();
                 readyToThrow = false;
+                drawer.ClearTrajectory();
             }
         }
     }
@@ -52,42 +64,52 @@ public class BallThrower : MonoCached
         if(!touched) return;
         
         Vector2 pos = ctx.ReadValue<Vector2>();
-        
-        if (ctx.performed)
+
+        if (touched && !startPosWrited)
         {
-            if(pos == prevPos) return;
+            startPosition = pos;
+            startPosWrited = true;
+        }
 
-            if (touched && !startPosWrited)
+        float distFromStartPoint = Vector2.Distance(pos, startPosition);
+
+        if (distFromStartPoint > deadZoneRadius)
+        {
+            if (!readyToThrowNotified)
             {
-                startPosition = pos;
-                startPosWrited = true;
+                ResetPosition();
+                msg.Send(Message.READY_TO_THROW);
+                readyToThrowNotified = true;
             }
-
-            float distFromStartPoint = Vector2.Distance(pos, startPosition);
-
-            if (distFromStartPoint > deadZoneRadius)
-            {
-                if (!readyToThrowNotified)
-                {
-                    
-                }
                 
-                readyToThrow = true;
-                float t = Mathf.Clamp01(distFromStartPoint / maxTouchDistance);
-                throwForce = Mathf.Lerp(minForce, maxForce, t);
-                throwDirection = (pos - startPosition).normalized;
-            }
-            else
-            {
-                readyToThrow = false;
-            }
-
-            prevPos = pos;
+            readyToThrow = true;
+            float t = Mathf.Clamp01(distFromStartPoint / maxTouchDistance);
+            throwForce = Mathf.Lerp(minForce, maxForce, t);
+            throwDirection = (pos - startPosition).normalized;
+            drawer.DrawTrajectory(ball.transform.position, throwDirection * throwForce);
+        }
+        else
+        {
+            readyToThrow = false;
+            drawer.ClearTrajectory();
         }
     }
 
     private void Throw()
     {
+        ballRB.bodyType = RigidbodyType2D.Dynamic;
         ball.velocity = throwDirection * throwForce;
+    }
+
+    public void ResetPosition()
+    {
+        ballRB.velocity = Vector2.zero;
+        ballRB.bodyType = RigidbodyType2D.Static;
+        Vector2 pos;
+        float x = ballStartArea.bounds.max.x;
+        float y = ballStartArea.bounds.max.y;
+        pos.x = Random.Range(-x, x);
+        pos.y = Random.Range(-y, y);
+        ball.transform.position = pos;
     }
 }

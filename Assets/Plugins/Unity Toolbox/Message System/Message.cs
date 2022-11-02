@@ -34,5 +34,6 @@ public enum Message
     SCENE_LOADED,
     GAME_STARTED,
     RESTART_GAME,
-    BALL_PASSED_RING
+    BALL_PASSED_RING,
+    READY_TO_THROW
 }
